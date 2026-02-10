@@ -1,0 +1,13 @@
+name = "MMFNEXUS"
+uuid = "10f02407-cee8-4d2b-96f7-1b77de738a58"
+authors = ["Bram D. Alferink <bramalferink@gmail.com> and contributors"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
