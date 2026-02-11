@@ -5,7 +5,7 @@ module MMFNEXUS
     using FFTW
     using LinearAlgebra
     using Images
-    using Statistics 
+    using Statistics:mean
     using Roots
     using Base.Threads
     using Logging
@@ -25,6 +25,8 @@ module MMFNEXUS
 
     # threshold calculations
     include("threshold.jl")
+
+    export NEXUS_Plus
 
     
 end

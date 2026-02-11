@@ -22,7 +22,7 @@ end
 function debugplot(f)
     if Logging.shouldlog(global_logger(), Logging.Debug, @__MODULE__, nothing, nothing)
         @eval import Plots
-        display(f())
+        display(Base.invokelatest(f))
     end
 end
 
