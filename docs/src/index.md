@@ -21,7 +21,7 @@ For now, the Multiscale Morphology Filter (MMF) NEXUS can not be installed throu
 
 ## Usage
 
-For now, the NEXUS+ algorithm is the only routine available. This requries a density field with non-zero values everywhere. For optimal results, we suggest density field reconstructions using [DTFE](https://github.com/MariusCautun/DTFE), or [Phase-Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl). On how to reconstruct a density field from a particle distribution is found on the respective pages. The density field should be normalized, i.e. $\frac{\rho}{\rho_{\text{mean}}} = 1 + \deta$.
+For now, the NEXUS+ algorithm is the only routine available. This requries a density field with non-zero values everywhere. For optimal results, we suggest density field reconstructions using [DTFE](https://github.com/MariusCautun/DTFE), or [Phase-Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl). On how to reconstruct a density field from a particle distribution is found on the respective pages. The density field should be normalized, i.e. $\frac{\rho}{\rho_{\text{mean}}} = 1 + \delta$.
 
 Give the normalized density field (`densityField`), we identify the cosmic web environments as follows:
 
