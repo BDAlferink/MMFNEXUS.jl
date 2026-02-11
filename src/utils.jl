@@ -37,8 +37,8 @@ function parse_filter_scales(
 end
 
 function parse_filter_scales(
-    scales::Union{Tuple{Vararg{<:Real}}, AbstractVector{<:Real}},
-    R0::Real;   # R0 is unused, but kept for uniform call signature
+    scales::Union{Tuple{Vararg{Real}}, AbstractVector{<:Real}},
+    R0::Real;   # R0 and b are unused, but kept for uniform call signature
     b::Real = √2
 )
     return collect(scales)

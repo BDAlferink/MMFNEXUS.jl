@@ -1,25 +1,25 @@
 using MMFNEXUS
 using Test
+using HDF5
+using Statistics:mean
+using JLD2
+
+# Load test density field
+function load_data(file)
+    fid = h5open(file, "r")
+    densityfield = read(fid["densityfield"])
+    close(fid)
+
+    densityfield = densityfield ./ mean(densityfield)
+    return densityfield
+end
 
 @testset "MMFNEXUS.jl" begin
 
-    using HDF5
-    using Statistics:mean
-    using JLD2
-
-    # Load test density field
-    function load_data(file)
-        fid = h5open(file, "r")
-        densityfield = read(fid["densityfield"])
-        close(fid)
-
-        densityfield = densityfield ./ mean(densityfield)
-        return densityfield
-    end
-    densityfield = load_data("test/data/densityfield.h5");
+    densityfield = load_data("data/densityfield.h5");
 
     # Load test comparison data
-    @load "test/data/NEXUSTestClassification.jld2" test_output
+    @load "data/NEXUSTestClassification.jld2" test_output
 
     # set NEXUS+ parameters
     min_scale = .5 #minimum smoothing scale in Mpc/h

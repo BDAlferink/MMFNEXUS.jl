@@ -58,7 +58,7 @@ function mask_from_labels(
 
     @inbounds for i in eachindex(labels)
         id = labels[i]
-        out[i] = (id != 0) & valid[id]
+        out[i] = (id != 0) && valid[id]
     end
 
     return out
