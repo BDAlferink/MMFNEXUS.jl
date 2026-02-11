@@ -45,5 +45,5 @@ end
     #test voids
     @test NEXUSTest[4] ≈ test_output[4]
 
-
+    println(size(NEXUSTest[4]))
 end

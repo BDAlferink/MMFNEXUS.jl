@@ -14,10 +14,14 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Theory" => "theory.md",
+        "Tutorial" => "tutorial.md",
+        "citations" => "citations.md",
     ],
 )
 
 deploydocs(;
     repo="github.com/BDAlferink/MMFNEXUS.jl",
+    push_preview = true, # not sure why, if problems, check out
     devbranch="main",
 )
