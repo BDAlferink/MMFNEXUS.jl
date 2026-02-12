@@ -53,9 +53,8 @@ For more details, theory, and a tutorial, please consult the Documentation.
 This Julia implementation was written by:
 - Bram Alferink ([alferink@astro.rug.nl](mailto:alferink@astro.rug.nl))
 
-The original NEXUS+ algorithm was written by:
+The original NEXUS+ algorithm published as [NEXUS: tracing the cosmic web connection (Marius Cautun , Rien van de Weygaert , Bernard J. T. Jones)](https://academic.oup.com/mnras/article/429/2/1286/1038906) was written by:
 - Marius Cautun
-Which is published as [NEXUS: tracing the cosmic web connection (Marius Cautun , Rien van de Weygaert , Bernard J. T. Jones)](https://academic.oup.com/mnras/article/429/2/1286/1038906)
 
 We thank:
 - Ivan Spirov

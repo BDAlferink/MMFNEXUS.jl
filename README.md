@@ -12,13 +12,13 @@ This is the Julia implementation for the NEXUS+ algorithm. More information and 
 
 ## Installation
 
+
 <!--
 The Multiscale Morphology Filter (MMF) NEXUS can be installed with the Julia package manager. From the Pkg Repl mode run:
 
-```julia
-pkg> add MMFNEXUS
-```
+add pkg thing in julia
 -->
+
 For now, the Multiscale Morphology Filter (MMF) NEXUS can not be installed through the package manager yet. This will become available soon.
 
 ## Usage
@@ -55,9 +55,8 @@ For more details, theory, and a tutorial, please consult the Documentation.
 This Julia implementation was written by:
 - Bram Alferink ([alferink@astro.rug.nl](mailto:alferink@astro.rug.nl))
 
-The original NEXUS+ algorithm was written by:
+The original NEXUS+ algorithm published as [NEXUS: tracing the cosmic web connection (Marius Cautun , Rien van de Weygaert , Bernard J. T. Jones)](https://academic.oup.com/mnras/article/429/2/1286/1038906) was written by:
 - Marius Cautun
-Which is published as [NEXUS: tracing the cosmic web connection (Marius Cautun , Rien van de Weygaert , Bernard J. T. Jones)](https://academic.oup.com/mnras/article/429/2/1286/1038906)
 
 We thank:
 - Ivan Spirov
