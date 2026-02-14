@@ -22,7 +22,7 @@ function load_data(file)
     return densityfield
 end
 
-densityfield = load_data("data/densityfield.h5");
+densityfield = load_data("assets/data/densityfield.h5");
 
 ```
 lets do a plot here
