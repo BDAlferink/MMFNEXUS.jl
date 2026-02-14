@@ -11,140 +11,8 @@ function load_data(file)
     return densityfield
 end
 
-densityfield = load_data(&quot;assets/data/densityfield.h5&quot;);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">64×64×64 Array{Float32, 3}:
-[:, :, 1] =
-  6.3787      0.319022   0.178812   …  0.275078   1.60453     6.36863
- 32.4137     11.8526     0.73603       0.200798   0.22182    32.3456
-  2.61175    11.284      5.98257       0.465178   0.397306    2.49757
-  0.0960823   0.102636   6.54251       0.154465   0.376706    0.0853096
-  0.0883419   0.114051   0.829267      0.142506   0.100756    0.0830522
-  0.108629    0.141821   0.185743   …  0.161649   0.120986    0.109138
-  0.121783    0.15363    0.199764      0.130431   0.121703    0.130322
-  0.128742    0.144013   1.76643       0.0979627  0.107342    0.122559
-  0.119832    0.136357   0.296519      0.0795272  0.092235    0.112982
-  0.117931    0.147043   0.311567      0.0766562  0.0943392   0.111999
-  ⋮                                 ⋱                        
-  0.134672    0.122184   0.10016    …  0.0973459  0.12126     0.134672
-  0.131451    0.0987088  0.0744316     0.14268    0.139708    0.131778
-  0.109357    0.0784955  0.0668401     0.179464   0.13601     0.113106
-  0.0903099   0.073851   0.0878277     0.217224   0.112271    0.0981687
-  0.0928309   0.0802429  0.106543      0.259444   0.114266    0.103676
-  0.102035    0.098844   0.209264   …  0.524518   0.171463    0.113104
-  0.14453     0.194251   0.230769      3.00717    0.231836    0.154539
-  0.407906    0.387519   0.185937      1.04527    2.89208     0.409323
-  8.28375     0.328394   0.164662      0.27907    2.13953     8.28563
-
-[:, :, 2] =
-  0.184913     0.251222    2.16705    …  0.330499   5.1687      0.230127
- 44.1248      17.079       1.95876       0.24588    0.724164   44.2882
- 78.942      211.615      34.9185        0.264089   0.231467   79.7194
-  8.55335     15.7983      5.9779        0.278568   0.218922    8.50531
-  0.248664     0.219485    5.38621       0.4788     0.53726     0.228939
-  0.241806     0.678021    0.168531   …  0.23885    0.163073    0.231465
-  0.219784     0.162461    0.162432      0.0943028  0.123532    0.21289
-  0.140811     0.125032    0.190346      0.0806258  0.0950815   0.139684
-  0.112332     0.128498    0.204667      0.0709036  0.0886232   0.11072
-  0.122786     0.138218    0.306445      0.0677864  0.0853701   0.115149
-  ⋮                                   ⋱                        
-  0.0977582    0.0928313   0.0944924  …  0.0605447  0.079299    0.0977582
-  0.0915122    0.0767761   0.0786121     0.0639389  0.0932098   0.0915122
-  0.115301     0.0785032   0.0693695     0.0860691  0.111245    0.117133
-  0.0958294    0.0733536   0.0765469     0.123186   0.106352    0.101676
-  0.08891      0.0674605   0.0927348     0.148764   0.117221    0.101606
-  0.0919886    0.0854666   0.141517   …  0.259543   0.124395    0.107387
-  0.111194     0.159318    0.237099      2.34612    0.151871    0.123385
-  0.142253     0.195923    0.263348      2.85507    0.760867    0.148375
-  0.192524     0.2295      1.75062       0.329552   4.15542     0.196299
-
-[:, :, 3] =
-  5.28678     0.156853    0.107851   …  4.15119    5.34802     4.29991
- 67.3142      6.31689     0.534027      0.190966   5.85946    55.9723
- 12.7013     92.7083      7.54574       0.15809    0.157287   12.8522
-  2.85984    86.8228     40.5221        0.151757   0.179217    2.76331
-  0.73622     5.25348    29.3374        0.162295   0.17254     0.612552
-  0.211732    0.224821    0.294003   …  0.170698   0.173392    0.198881
-  0.152021    0.173979    0.25003       0.0991443  0.118217    0.143586
-  0.100263    0.152492    0.257357      0.0788604  0.0891007   0.101174
-  0.105073    0.152612    0.288854      0.0650144  0.081597    0.100266
-  0.112318    0.144906    0.353133      0.0619057  0.0786198   0.103819
-  ⋮                                  ⋱                        
-  0.0933218   0.0853478   0.0788312  …  0.064533   0.0783135   0.0933218
-  0.0907018   0.0864491   0.0741686     0.0584898  0.0784673   0.0921443
-  0.104088    0.0876725   0.0736503     0.0736416  0.0953258   0.105329
-  0.107664    0.0866929   0.0793228     0.0860944  0.111545    0.114964
-  0.108788    0.080752    0.0849954     0.101262   0.13529     0.118984
-  0.11524     0.0845801   0.133213   …  0.154785   0.156156    0.13035
-  0.160055    0.158481    0.153804      1.77337    0.16002     0.174526
-  0.235848    0.603177    0.137734      8.11949    0.645408    0.24434
-  5.37846     0.159664    0.108568      3.32135    5.07086     4.32912
-
-;;; … 
-
-[:, :, 62] =
-  3.19831    0.403242  1.56218    …  0.166885    0.0935614  3.19763
-  0.123823   3.18107   0.946493      0.106339    0.080644   0.109225
-  0.165625   0.946985  0.130444      0.0947405   0.0698157  0.156063
-  0.130055   0.17709   0.241548      0.0890186   0.0757262  0.113064
-  0.102381   0.148738  0.247755      0.0837115   0.0817999  0.0907799
-  0.317587   0.129591  0.358335   …  0.0849603   0.0805316  0.288772
-  0.104382   0.122433  0.515555      0.0837494   0.0795947  0.0980823
-  0.118405   0.163273  0.377048      0.0823405   0.0798137  0.105113
-  0.191641   8.44007   0.273729      0.0841502   0.0938397  0.179435
-  0.355264   0.209743  0.195099      0.088884    0.0918434  0.348781
-  ⋮                               ⋱                         
-  0.0983545  0.103787  0.0983777  …  0.111567    0.120733   0.0983545
-  0.125672   0.11028   0.118053      0.122929    0.150946   0.12669
-  0.180931   0.14272   0.172748      0.138322    0.180732   0.187127
-  0.451579   0.237544  0.187328      0.258254    1.02359    0.470677
-  0.438262   0.201411  0.153734      0.303345    0.296324   0.438262
-  0.385231   0.166538  0.139386   …  0.340976    0.282729   0.385231
-  0.698851   0.232933  0.18252       2.10544     0.963748   0.698851
- 10.0943     0.234642  0.272648      4.52329    94.8378     9.95271
-  3.28605    0.402498  1.53083       0.190516    0.107819   3.28608
-
-[:, :, 63] =
- 27.6082     2.85785   0.179975   …  0.184668   0.737656   27.4428
-  7.70803    2.96699   1.30308       0.160287   0.13633     7.70833
-  0.363421   1.99838   8.21066       0.101313   0.0876835   0.309321
-  0.108048   0.116433  0.885607      0.0804586  0.0848514   0.08554
-  0.093333   0.100666  0.475598      0.0774542  0.0765781   0.0803731
-  0.0876025  0.108801  2.28276    …  0.0850295  0.0757002   0.0831433
-  0.102522   0.139154  2.36108       0.0885795  0.0762178   0.0949016
-  0.139609   0.17261   0.308934      0.0967999  0.0943771   0.128637
-  0.131554   0.167867  0.192287      0.0983265  0.0944636   0.115944
-  0.145069   1.45099   0.241398      0.0780086  0.0875435   0.127393
-  ⋮                               ⋱                        
-  0.138679   0.101238  0.0874078  …  0.210158   0.215931    0.138679
-  0.113773   0.104232  0.0958647     0.276262   0.182259    0.11643
-  0.122388   0.108955  0.114732      0.337182   0.227799    0.130013
-  0.138828   0.113745  0.176134      0.669554   0.236112    0.150785
-  0.20809    0.348803  0.301832      7.79987    0.559049    0.219326
-  0.314922   0.388226  0.307569   …  0.38867    0.31121     0.314922
-  0.291441   0.413343  0.295699      2.35499    0.262765    0.291441
-  3.36632    0.268475  0.259176      0.104481   1.01164     2.79933
- 27.8107     2.85792   0.175024      0.238185   0.788413   27.5905
-
-[:, :, 64] =
-  6.40364     0.319022   0.182363   …  0.275078   1.93203     6.3865
- 31.3736     13.5006     0.741227      0.200798   0.22182    30.9344
-  2.63341    11.0119     6.4749        0.464832   0.391736    2.41566
-  0.102364    0.0905391  6.03392       0.151875   0.371968    0.0896872
-  0.08223     0.103285   0.825209      0.140243   0.0962573   0.0785511
-  0.104422    0.137969   0.178153   …  0.152169   0.117787    0.104713
-  0.128605    0.177953   0.212029      0.130431   0.120863    0.126839
-  0.128742    0.148193   1.85604       0.0979627  0.107342    0.122559
-  0.119832    0.135231   0.344896      0.0795272  0.092235    0.112982
-  0.117931    0.148732   0.348609      0.0766562  0.0943392   0.111999
-  ⋮                                 ⋱                        
-  0.13809     0.122102   0.10016    …  0.0979894  0.119727    0.133128
-  0.135735    0.0998069  0.0744316     0.143344   0.137244    0.136061
-  0.113984    0.0807129  0.0668401     0.180117   0.140581    0.117732
-  0.0935468   0.0742543  0.0878277     0.224343   0.119666    0.101068
-  0.0936767   0.0806722  0.106543      0.274628   0.115489    0.103676
-  0.102508    0.099293   0.209264   …  0.535164   0.171463    0.113104
-  0.14453     0.194251   0.230769      3.11128    0.231836    0.154539
-  0.404689    0.387519   0.185937      1.03371    1.05508     0.404689
-  8.31936     0.328394   0.168213      0.27907    2.37872     8.31037</code></pre><p>lets do a plot here</p><pre><code class="language-julia hljs"># set up the box
+densityfield = load_data(&quot;assets/data/densityfield.h5&quot;);
+nothing</code></pre><p>lets do a plot here</p><pre><code class="language-julia hljs"># set up the box
 N = 64
 L = 50. #Mpc/h
 M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
@@ -155,4 +23,5 @@ filter_scales = 6 #max n in min_scale*(√2)^n, starting at n=0
 density_contrast_node = 370.
 min_node_mass = 1e13 #Msun/h
 min_fila_volume = 10 #(Mpc/h)^3
-min_wall_volume = 10 #(Mpc/h)^3</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">10</code></pre><p>calculation here. etc.</p><h2 id="Options"><a class="docs-heading-anchor" href="#Options">Options</a><a id="Options-1"></a><a class="docs-heading-anchor-permalink" href="#Options" title="Permalink"></a></h2><h2 id="Multithreading"><a class="docs-heading-anchor" href="#Multithreading">Multithreading</a><a id="Multithreading-1"></a><a class="docs-heading-anchor-permalink" href="#Multithreading" title="Permalink"></a></h2></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../citations/">citations »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Saturday 14 February 2026 14:59">Saturday 14 February 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+min_wall_volume = 10 #(Mpc/h)^3
+nothing</code></pre><p>calculation here. etc.</p><h2 id="Options"><a class="docs-heading-anchor" href="#Options">Options</a><a id="Options-1"></a><a class="docs-heading-anchor-permalink" href="#Options" title="Permalink"></a></h2><h2 id="Multithreading"><a class="docs-heading-anchor" href="#Multithreading">Multithreading</a><a id="Multithreading-1"></a><a class="docs-heading-anchor-permalink" href="#Multithreading" title="Permalink"></a></h2></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../citations/">citations »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Saturday 14 February 2026 15:51">Saturday 14 February 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
