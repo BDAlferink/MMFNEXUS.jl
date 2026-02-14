@@ -23,6 +23,7 @@ function load_data(file)
 end
 
 densityfield = load_data("assets/data/densityfield.h5");
+nothing
 
 ```
 lets do a plot here
@@ -40,7 +41,7 @@ density_contrast_node = 370.
 min_node_mass = 1e13 #Msun/h
 min_fila_volume = 10 #(Mpc/h)^3
 min_wall_volume = 10 #(Mpc/h)^3
-
+nothing
 
 ```
 calculation here.
