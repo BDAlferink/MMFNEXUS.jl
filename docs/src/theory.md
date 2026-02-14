@@ -20,7 +20,7 @@ Below we elaborate on each step. This theory section is paraphrasiing the detail
 ### Filtering
 The gaussian filter of width $R_n$ is applied in Fourier space. First for node identification, this is done on the density field $f(\bm{x})$,
 ```math
-f_n(\bm{x}) = \int \frac{d^3k}{(2/pi)^3}e^{-k^2R_n^2/2} \hat{f}(\bm{k})e^{i\bm{k}\cdot\bm{x}},
+f_n(\bm{x}) = \int \frac{d^3k}{(2\pi)^3}e^{-k^2R_n^2/2} \hat{f}(\bm{k})e^{i\bm{k}\cdot\bm{x}},
 ```
 where $\hat{f}(\bm{k})$ is the fourier transform of the input field and $f_n(\bm{x})$ is the filtered field. This is used for the input field when calculating the node signatures. They turn out to perform much worse when using the NEXUS+ procedure of filtering in logarithmic space.
 
