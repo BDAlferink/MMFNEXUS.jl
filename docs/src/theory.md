@@ -26,7 +26,7 @@ where $\hat{f}(\bm{k})$ is the fourier transform of the input field and $f_n(\bm
 
 For the signature calculations of the other environments, the log of the field f is first computed,
 ```math
-g = \log_10{f},
+g = \log_{10}{f},
 ```
 and then smoothed with a gaussian filter,
 ```math
