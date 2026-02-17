@@ -10,7 +10,7 @@ In principle MMF NEXUS can be applied to any continous density field. Due to the
 We now start by importing relevant libraries and loading the data. We plot a slice of the density field to illustrate what we are working with.
 
 ```@example tutorial1
-using MMFNEXUS, HDF5, Statistics
+using MMFNEXUS, HDF5, Statistics, Plots
 
 # Load test density field
 function load_data(file)
