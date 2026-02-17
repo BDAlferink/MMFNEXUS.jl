@@ -51,10 +51,10 @@ The resulting `MMF_*` outputs are BitArray's of size (N,N,N) where for each voxe
 For more details, theory, and a tutorial, please consult the Documentation.
 
 ## Contributors
-This Julia implementation was written by:
+This Julia implementation is written by:
 - Bram Alferink ([alferink@astro.rug.nl](mailto:alferink@astro.rug.nl))
 
-The original NEXUS+ algorithm published as [NEXUS: tracing the cosmic web connection (Marius Cautun , Rien van de Weygaert , Bernard J. T. Jones)](https://academic.oup.com/mnras/article/429/2/1286/1038906) was written by:
+The original NEXUS+ algorithm published as [NEXUS: tracing the cosmic web connection (Marius Cautun , Rien van de Weygaert , Bernard J. T. Jones)](https://academic.oup.com/mnras/article/429/2/1286/1038906) is written by:
 - Marius Cautun
 
 We thank:
