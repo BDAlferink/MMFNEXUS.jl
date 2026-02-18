@@ -24,7 +24,7 @@ end
 
 densityfield = load_data("assets/data/densityfield.h5");
 heatmap(log10.(densityfield[:, :, 20]), aspect_ratio=:equal, c=:viridis, title="Density Field Slice", xlabel="x [Mpc/h]", ylabel="y [Mpc/h]", colorbar_title="log₁₀(1+δ)", xlims=(0, 50), ylims=(0, 50), xticks=0:10:50, yticks=0:10:50);
-nothing
+
 
 ```
 We now set up the simulation box and a number of parameters used in nexus. These are fairly standard but can be changed. Particularly the minimum filtering scale can be changed according to the resolution of the simulation and according density field.
@@ -61,7 +61,7 @@ heatmap(log10.(densityfield[:, :, slice_index]), aspect_ratio=:equal, c=:viridis
 contour!(MMF_wall[:, :, slice_index], levels=[0.5], color=:green, linewidth=2, label="Walls")
 contour!(MMF_fila[:, :, slice_index], levels=[0.5], color=:blue, linewidth=2, label="Filaments")
 contour!(MMF_node[:, :, slice_index], levels=[0.5], color=:red, linewidth=2, label="Nodes")
-nothing
+
 ```
 
 ## Options
