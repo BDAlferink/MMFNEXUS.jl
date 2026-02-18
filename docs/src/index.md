@@ -60,3 +60,4 @@ The original NEXUS+ algorithm published as [NEXUS: tracing the cosmic web connec
 We thank:
 - Ivan Spirov
 - Rien van de Weijgaert
+- Job Feldbrugge
