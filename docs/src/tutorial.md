@@ -27,7 +27,7 @@ heatmap(log10.(densityfield[:, :, 20]), aspect_ratio=:equal, c=:viridis, title="
 
 
 ```
-We now set up the simulation box and a number of parameters used in nexus. These are fairly standard but can be changed. Particularly the minimum filtering scale can be changed according to the resolution of the simulation and according density field.
+We now set up the simulation box.
 
 ```@example tutorial1
 # set up the box
@@ -35,21 +35,11 @@ N = 64 # number of voxels per side
 L = 50. # side length in Mpc/h
 M = 4.075e10 * 64^3 # total mass contained in the box in in Msun
 
-# set NEXUS+ parameters
-min_scale = 1. #minimum smoothing scale in Mpc/h
-filter_scales = 4 #max n in min_scale*(√2)^n, starting at n=0
-density_contrast_node = 370.
-min_node_mass = 1e13 # minimum mass of a node in Msun/h
-min_fila_volume = 10 # minimum volume of a filament in (Mpc/h)^3
-min_wall_volume = 10 # minimum volume of a wall in (Mpc/h)^3
-nothing
-
 ```
-The NEXUS+ routine is called with the function `NEXUS_Plus`, which takes the density field and the above parameters as inputs. The final parameter is a verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on. `NEXUS_Plus` gives four boolean matrices where for each environemt a `1` means the voxel is considered to be in the corresponding environemnt
+The NEXUS+ routine is called with the function `NEXUS_Plus`, which takes the density field and a number of keyword arguments. These will be explained below. One of the keyword arguments is a verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on. `NEXUS_Plus` gives four boolean matrices where for each environemt a `1` means the voxel is considered to be in the corresponding environemnt
 
 ```@example tutorial1
-MMF_node, MMF_fila, MMF_wall, MMF_void = NEXUS_Plus(densityfield, N, 
-L, M, filter_scales, density_contrast_node, min_node_mass, min_fila_volume, min_wall_volume; R0 = min_scale, level = :info);
+MMF_node, MMF_fila, MMF_wall, MMF_void = NEXUS_Plus(densityfield, N, L, M; level = :info);
 nothing
 ```
 
@@ -66,11 +56,27 @@ contour!(MMF_node[:, :, slice_index], levels=[0.5], color=:red, linewidth=2, lab
 
 ## Options
 
-Explain other options, maybe individual functions? maybe debug?
+A number of parameters can be changed manually in NEXUS+. Particularly the minimum filtering scale can be changed according to the resolution of the simulation and corresponding density field. The keyword arguments and their defaults of ```NEXUS_Plus``` are: 
+
+```julia
+Δ::Real = 370. # density contrast for node detection
+min_node_mass::Real = 1e13 # minimum mass of a node in Msun/h
+min_fila_volume::Real = 10 # minimum volume of a filament in (Mpc/h)^3
+min_wall_volume::Real = 10 # minimum volume of a wall in (Mpc/h)^3
+R0::Real = 1. #minimum smoothing scale in Mpc/h
+filter_parse = 4 #max n in min_scale*(√2)^n, starting at n=0
+level::Symbol = :info # verbose level
+```
+Δ is the density contrast for node detection, this is further explained in the theory section. The minimum node mass is used as a physical selection criteria to avoid spurious detections of tiny dense clumps as clusters. Similarly,the minimum fila/wall argument is used to avoid spurious detections. R0 is the minimum filtering scale. Filter parse takes either an integer, in which case the filter scales are R0(√2)^n where n are integers from 0 up to the given integer, or a tuple/array of all the user defined scales in Mpc/h can be given directly. In case a tuple is given, the argument R0 does not do anything. The level parameter lets us select the verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on.
+
+The function with all keyword arguments can be called as:
+```julia
+MMF_node, MMF_filament, MMF_wall, MMF_void = NEXUS_Plus(densityField, N, L, totalMass; filter_parse = filter_parse, Δ = Δ, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, minimum_wall_volume = min_wall_volume; R0 = R0, level = level);
+```
 
 ## Multithreading
 
-Multithreading is `automatically` enabled. It will utalize the cores available to your instance of Julia. This can be set by opening julia with a specifified number of threads:
+Multithreading is `automatically` enabled. It will utilize the cores available to your instance of Julia. This can be set by opening julia with a specifified number of threads:
 
 ```bash
 $ julia --threads 4

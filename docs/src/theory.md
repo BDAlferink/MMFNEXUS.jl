@@ -15,7 +15,7 @@ The algorithm is outlined by the following steps:
 
 The environments are found hyrarchically, in the sense that first nodes are detected, then filaments, then walls, and anything not identified is considered a void. This is done as, for example, typically nodes have both a strong node and filament siganture, etc.
 
-Below we elaborate on each step. This theory section is paraphrasiing the detailed explanation found in the original [NEXUS publication](https://academic.oup.com/mnras/article/429/2/1286/1038906)
+Below we elaborate on each step. This theory section is paraphrasiing the detailed explanation found in the original [NEXUS publication](https://academic.oup.com/mnras/article/429/2/1286/1038906).
 
 ### Filtering
 The gaussian filter of width $R_n$ is applied in Fourier space. First for node identification, this is done on the density field $f(\bm{x})$,
@@ -88,4 +88,4 @@ Filament and wall detection thresholds are determined by considering the change 
 where $M$ is the mass contained in filaments/walls and $S$ the signature threshold. The optimal signature threshold is then chosen as the signature corresponding to the peak in $\Delta M^2$. An additional requirement for the minimum volume of filaments and walls is chosen to be 1 $(\text{Mpc}/h)^3$ and 2 $(\text{Mpc}/h)^3$, respectively.
 
 ### Variations
-Discuss "Normal" NEXUS, shear, etc.
+There are a number of ``other`` routines that find signatures of different fields such the tidal field, the velocity divergence, the velocity shear, the logdensity field (this is not the same as NEXUS+ which only applies the filter in log space). As of now, none of those are implemented in this package but may be added in the future. More information is found in the original [NEXUS publication](https://academic.oup.com/mnras/article/429/2/1286/1038906).

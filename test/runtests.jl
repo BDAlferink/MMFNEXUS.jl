@@ -34,7 +34,7 @@ end
     L = 50. # Box size in Mpc/h
     M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
 
-    NEXUSTest = NEXUS_Plus(densityfield, N, L, M, filter_scales, density_contrast_node, min_node_mass, min_fila_volume, min_wall_volume; R0 = min_scale, level = :none);
+    NEXUSTest = NEXUS_Plus(densityfield, N, L, M; filter_parse = filter_scales, Δ = density_contrast_node, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, min_wall_volume = min_wall_volume, R0 = min_scale, level = :none);
 
     #test nodes
     @test NEXUSTest[1] ≈ test_output[1]

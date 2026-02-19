@@ -22,7 +22,7 @@ For now, the Multiscale Morphology Filter (MMF) NEXUS can not be installed throu
 
 ## Usage
 
-For now, the NEXUS+ algorithm is the only routine available. This requries a density field with non-zero values everywhere. For optimal results, we suggest density field reconstructions using [DTFE](https://github.com/MariusCautun/DTFE), or [Phase-Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl). On how to reconstruct a density field from a particle distribution is found on the respective pages. The density field should be normalized, i.e. $\frac{\rho}{\rho_{\text{mean}}} = 1 + \delta$.
+The basic usage of the NEXUS+ routine requries a density field with non-zero values everywhere. For optimal results, we suggest density field reconstructions using [DTFE](https://github.com/MariusCautun/DTFE), or [Phase-Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl). How to reconstruct a density field from a particle distribution is found on the respective pages. The density field should be normalized, i.e. $\frac{\rho}{\rho_{\text{mean}}} = 1 + \delta$.
 
 Give the normalized density field (`densityField`), we identify the cosmic web environments as follows:
 
@@ -34,21 +34,11 @@ N = 256 # number of gridpoints per dimension
 L = 75. # Box size in cMpc/h
 totalMass = 4e8 * 455^3 # total mass contained in simulation box in Msun/h 
 
-# NEXUS+ parameters
-minimumFilterScale = 0.5 # minimum smoothing scale in Mpc/h
-filter_scales = 6 # maximum index n in min_scale*(√2)^n. Here it does n = 0,1,2,3,4,5,6
-density_contrast_node = 370.
-minimum_node_mass = 1e13 # Msun/h
-minimum_filament_volume = 5 # (MPC/h)^3
-minimum_wall_volume = 5 # (MPC/h)^3
-
-MMF_node, MMF_filament, MMF_wall, MMF_void = NEXUS_Plus(densityField, N, L, totalMass, filter_scales, density_contrast_node, minimum_node_mass, minimum_filament_volume, minimum_wall_volume; R0 = min_scale);
+MMF_node, MMF_filament, MMF_wall, MMF_void = NEXUS_Plus(densityField, N, L, totalMass);
 
 ```
 
-The resulting `MMF_*` outputs are BitArray's of size (N,N,N) where for each voxel, one of the morphological environments has the value `1` and all others are `0` to indicate to which environment it belongs.
-
-For more details, theory, and a tutorial, please consult the Documentation.
+The resulting `MMF_*` outputs are BitArray's of size (N,N,N) where for each voxel, one of the morphological environments has the value `1` and all others are `0` to indicate to which environment it belongs. There are a number of optinal settings which are discussed in the tutorial section of the documentation.
 
 ## Contributors
 This Julia implementation is written by:

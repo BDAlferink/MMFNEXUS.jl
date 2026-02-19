@@ -33,13 +33,13 @@ function NEXUS_Plus(
     ρ::AbstractArray{<:Real,3}, 
     N::Integer, 
     L::Real, 
-    M::Real, 
-    filter_parse, 
-    Δ::Real, 
-    min_node_mass::Real, 
-    min_fila_volume::Real, 
-    min_wall_volume::Real; 
-    R0::Real = 0.5,
+    M::Real; 
+    filter_parse = 4, 
+    Δ::Real = 370., 
+    min_node_mass::Real = 1e13, 
+    min_fila_volume::Real = 10, 
+    min_wall_volume::Real = 10, 
+    R0::Real = 1.,
     level::Symbol = :info
 )
     # Parse logging level. Options: 
