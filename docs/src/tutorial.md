@@ -39,7 +39,7 @@ M = 4.075e10 * 64^3 # total mass contained in the box in in Msun
 The NEXUS+ routine is called with the function `NEXUS_Plus`, which takes the density field and a number of keyword arguments. These will be explained below. One of the keyword arguments is a verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on. `NEXUS_Plus` gives four boolean matrices where for each environemt a `1` means the voxel is considered to be in the corresponding environemnt
 
 ```@example tutorial1
-MMF_node, MMF_fila, MMF_wall, MMF_void = NEXUS_Plus(densityfield, N, L, M; level = :info);
+MMF_node, MMF_fila, MMF_wall, MMF_void = NEXUS_Plus(densityfield, N, L, M; filter_parse = 6 ,R0 = .5, level = :info);
 nothing
 ```
 
