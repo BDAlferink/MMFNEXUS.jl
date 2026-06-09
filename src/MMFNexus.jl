@@ -1,4 +1,4 @@
-module MMFNEXUS
+module MMFNexus
 
     # ---- imports ----
     using FFTW

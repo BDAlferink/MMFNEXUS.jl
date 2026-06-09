@@ -68,6 +68,6 @@ jobs:
         shell: julia --project=docs --color=yes {0}
         run: |
           using Documenter: DocMeta, doctest
-          using MMFNEXUS
-          DocMeta.setdocmeta!(MMFNEXUS, :DocTestSetup, :(using MMFNEXUS); recursive=true)
-          doctest(MMFNEXUS)
+          using MMFNexus
+          DocMeta.setdocmeta!(MMFNexus, :DocTestSetup, :(using MMFNexus); recursive=true)
+          doctest(MMFNexus)

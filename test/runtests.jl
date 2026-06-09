@@ -1,4 +1,4 @@
-using MMFNEXUS
+using MMFNexus
 using Test
 using HDF5
 using Statistics:mean
@@ -27,10 +27,10 @@ const KWARGS = (
     level = :none,
 )
 
-@testset "MMFNEXUS.jl" begin
+@testset "MMFNexus.jl" begin
 
     @testset "SimBox" begin
-        sim = MMFNEXUS.SimBox(N, L, M)
+        sim = MMFNexus.SimBox(N, L, M)
         @test sim.ρ_mean ≈ M / L^3
         @test sim.voxel_volume ≈ (L / N)^3
         @test sim.N == N
@@ -38,19 +38,19 @@ const KWARGS = (
 
     @testset "parse_filter_scales" begin
         # integer dispatch
-        scales = MMFNEXUS.parse_filter_scales(4, 0.5)
+        scales = MMFNexus.parse_filter_scales(4, 0.5)
         @test length(scales) == 5          # n = 0:4
         @test scales[1] ≈ 0.5
         @test scales[2] ≈ 0.5 * sqrt(2)
 
         # vector dispatch passthrough
         explicit = [0.5, 1.0, 2.0]
-        @test MMFNEXUS.parse_filter_scales(explicit) == explicit
+        @test MMFNexus.parse_filter_scales(explicit) == explicit
     end
 
     @testset "compute_eigenvalues_sym3" begin
         # diagonal matrix — known eigenvalues
-        l1, l2, l3 = MMFNEXUS.compute_eigenvalues_sym3(3.0, 1.0, 2.0, 0.0, 0.0, 0.0)
+        l1, l2, l3 = MMFNexus.compute_eigenvalues_sym3(3.0, 1.0, 2.0, 0.0, 0.0, 0.0)
         @test l1 ≈ 1.0
         @test l2 ≈ 2.0
         @test l3 ≈ 3.0
@@ -59,13 +59,13 @@ const KWARGS = (
         # [ 2  1  0 ]  eigenvalues: 1, 1, 3
         # [ 1  2  0 ]
         # [ 0  0  1 ]
-        l1, l2, l3 = MMFNEXUS.compute_eigenvalues_sym3(2.0, 2.0, 1.0, 1.0, 0.0, 0.0)
+        l1, l2, l3 = MMFNexus.compute_eigenvalues_sym3(2.0, 2.0, 1.0, 1.0, 0.0, 0.0)
         @test l1 ≈ 1.0 atol=1e-10
         @test l2 ≈ 1.0 atol=1e-10
         @test l3 ≈ 3.0 atol=1e-10
 
         # output is always sorted ascending
-        l1, l2, l3 = MMFNEXUS.compute_eigenvalues_sym3(1.0, 3.0, 2.0, 0.5, 0.3, 0.1)
+        l1, l2, l3 = MMFNexus.compute_eigenvalues_sym3(1.0, 3.0, 2.0, 0.5, 0.3, 0.1)
         @test l1 ≤ l2 ≤ l3
     end    
 

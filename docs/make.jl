@@ -1,14 +1,14 @@
-using MMFNEXUS
+using MMFNexus
 using Documenter
 
-DocMeta.setdocmeta!(MMFNEXUS, :DocTestSetup, :(using MMFNEXUS); recursive=true)
+DocMeta.setdocmeta!(MMFNexus, :DocTestSetup, :(using MMFNexus); recursive=true)
 
 makedocs(;
-    modules=[MMFNEXUS],
+    modules=[MMFNexus],
     authors="Bram D. Alferink <bramalferink@gmail.com> and contributors",
-    sitename="MMFNEXUS.jl",
+    sitename="MMFNexus.jl",
     format=Documenter.HTML(;
-        canonical="https://BDAlferink.github.io/MMFNEXUS.jl",
+        canonical="https://BDAlferink.github.io/MMFNexus.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -23,7 +23,7 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/BDAlferink/MMFNEXUS.jl",
+    repo="github.com/BDAlferink/MMFNexus.jl",
     push_preview = true, # not sure why, if problems, check out
     devbranch="main",
 )

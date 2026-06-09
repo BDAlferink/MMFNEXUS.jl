@@ -1,10 +1,10 @@
 ```@meta
-CurrentModule = MMFNEXUS
+CurrentModule = MMFNexus
 ```
 
 # MMF NEXUS
 
-Documentation for [MMFNEXUS](https://github.com/BDAlferink/MMFNEXUS.jl).
+Documentation for [MMFNexus](https://github.com/BDAlferink/MMFNexus.jl).
 
 
 This is the Julia implementation for the NEXUS+ algorithm. More information and standalone application can be found on our website in the future.
@@ -21,7 +21,7 @@ For now, the Multiscale Morphology Filter (MMF) NEXUS cannot be installed throug
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/BDAlferink/MMFNEXUS.jl")
+Pkg.add(url="https://github.com/BDAlferink/MMFNexus.jl")
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ The basic usage of the NEXUS+ routine requires a density field with non-zero val
 Given the normalized density field (`densityField`), we identify the cosmic web environments as follows:
 
 ```julia
-using MMFNEXUS
+using MMFNexus
 
 # field and box parameters (example from the reconstruction of the illustris-3 box sampled at 256^3)
 N = 256 # number of gridpoints per dimension
