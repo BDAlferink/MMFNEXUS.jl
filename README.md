@@ -19,13 +19,18 @@ The Multiscale Morphology Filter (MMF) NEXUS can be installed with the Julia pac
 add pkg thing in julia
 -->
 
-For now, the Multiscale Morphology Filter (MMF) NEXUS can not be installed through the package manager yet. This will become available soon.
+For now, the Multiscale Morphology Filter (MMF) NEXUS can not be installed through the package manager yet. This will become available soon. In the meantime, it can be installed directly from GitHub using the Julia package manager:
+
+```julia
+using Pkg
+Pkg.add(url="https://github.com/BDAlferink/MMFNEXUS.jl")
+```
 
 ## Usage
 
-The basic usage of the NEXUS+ routine requries a density field with non-zero values everywhere. For optimal results, we suggest density field reconstructions using [DTFE](https://github.com/MariusCautun/DTFE), or [Phase-Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl). How to reconstruct a density field from a particle distribution is found on the respective pages. The density field should be normalized, i.e. $\frac{\rho}{\rho_{\text{mean}}} = 1 + \delta$.
+The basic usage of the NEXUS+ routine requires a density field with non-zero values everywhere. For optimal results, we suggest density field reconstructions using [DTFE](https://github.com/MariusCautun/DTFE), or [Phase-Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl). How to reconstruct a density field from a particle distribution is found on the respective pages. The density field should be normalized, i.e. $\frac{\rho}{\rho_{\text{mean}}} = 1 + \delta$.
 
-Give the normalized density field (`densityField`), we identify the cosmic web environments as follows:
+Given the normalized density field (`densityField`), we identify the cosmic web environments as follows:
 
 ```julia
 using MMFNEXUS
@@ -39,7 +44,7 @@ MMF_node, MMF_filament, MMF_wall, MMF_void = NEXUS_Plus(densityField, N, L, tota
 
 ```
 
-The resulting `MMF_*` outputs are BitArray's of size (N,N,N) where for each voxel, one of the morphological environments has the value `1` and all others are `0` to indicate to which environment it belongs. There are a number of optinal settings which are discussed in the tutorial section of the documentation. A theory section is also found there.
+The resulting `MMF_*` outputs are BitArray's of size (N,N,N) where for each voxel, one of the morphological environments has the value `1` and all others are `0` to indicate to which environment it belongs. There are a number of optional settings which are discussed in the tutorial section of the documentation. A theory section is also found there.
 
 ## Contributors
 This Julia implementation is written by:
