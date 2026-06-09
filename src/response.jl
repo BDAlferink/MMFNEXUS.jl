@@ -136,7 +136,7 @@ function compute_signatures!(S_n,
         S_w[I] = (1 - r21)*(1 - r31)*abs(l1) * (m1*c21*c31)
     end
 
-    return S_n, S_f, S_w
+    return nothing
 end
 
 function allocate_signature_arrays(
@@ -203,11 +203,8 @@ function signatures_hessian!(
     buf = filt.fftbuf
     tmp = filt.tmpbuf
 
-    # In case of NEXUS+, we use a log filter. This is used for filament and wall detection.
-    # This does the filter of the logfield in fourier space before computing the hessian.
     if mode == :fila_wall
-        gf = FourierFilter(sim_box)
-        ρ_filtered = gf(ρ, sim_box, R, true)
+        ρ_filtered = filt(ρ, sim_box, R, true)
     else
         ρ_filtered = ρ
     end
@@ -254,16 +251,188 @@ function signatures_hessian!(
     @inbounds for I in eachindex(hbuf.Hxx)
         l1, l2, l3 = compute_eigenvalues_sym3(hbuf.Hxx[I], hbuf.Hyy[I], hbuf.Hzz[I], hbuf.Hxy[I], hbuf.Hyz[I], hbuf.Hxz[I])
 
-        S_n, S_f, S_w = compute_signatures!(S_n, S_f, S_w, I, l1, l2, l3)
+        compute_signatures!(S_n, S_f, S_w, I, l1, l2, l3)
 
     end
 
     return S_n, S_f, S_w
 end
 
+struct GaussKernels{K1, K2, K3}
+    kernels::Tuple{K1, K2, K3}
+end
+
+function GaussKernels(R::Real)
+    σ  = R
+    hw = ceil(Int, 4σ)
+    xs = -hw:hw
+
+    g0 = exp.(.-xs.^2 ./ (2σ^2))
+    g0 ./= cbrt(sum(g0)^3)
+
+    mk(v, dim) = KernelFactors.ReshapedOneD{3, dim-1}(centered(v))
+
+    kernels = ntuple(d -> mk(g0, d), 3)
+
+    GaussKernels(kernels)
+end
+
+
+# ============================================================
+# NEXUS  — nodes: Hessian of G_R * ρ
+# ============================================================
+
 """
-    multiscale_signature_max!(filt::FourierFilter, sim_box::SimBox, ρ::Array{<:Real,3}, R0::Real; mode::Symbol, scalespec)
-    Compute maximum signatures across multiple scales specified by the user.
+    compute_hessian_nodes!(hbuf, ρ, R; pad)
+
+NEXUS node signature: H_ij = R² ∂ᵢ∂ⱼ (G_R * ρ)
+
+deriv_method options:
+    :finite_diff     — Smooth first, then 3-point finite-difference derivatives [default]
+"""
+function compute_hessian_nodes!(hbuf::HessianBuffers,
+                                 ρ::AbstractArray{<:Real,3},
+                                 R::Real;
+                                 pad = "reflect")
+    _compute_hessian_nodes_finite_diff!(hbuf, ρ, R; pad)
+    return hbuf
+end
+
+# Smooth first, then finite-difference derivatives
+function _compute_hessian_nodes_finite_diff!(hbuf::HessianBuffers,
+                                              ρ::AbstractArray{<:Real,3},
+                                              R::Real;
+                                              pad = "reflect")
+    gk = GaussKernels(R)
+    ρ_R = imfilter(ρ, gk.kernels, pad)
+    
+    mk(v, dim) = KernelFactors.ReshapedOneD{3, dim-1}(v)
+    d1f = ntuple(dim -> mk(_FD_D1, dim), 3)
+    d2f = ntuple(dim -> mk(_FD_D2, dim), 3)
+    idf = ntuple(dim -> mk(_FD_ID, dim), 3)
+    
+    R2 = R^2
+    
+    imfilter!(hbuf.Hxx, ρ_R, (d2f[1], idf[2], idf[3]), pad); hbuf.Hxx .*= R2
+    imfilter!(hbuf.Hyy, ρ_R, (idf[1], d2f[2], idf[3]), pad); hbuf.Hyy .*= R2
+    imfilter!(hbuf.Hzz, ρ_R, (idf[1], idf[2], d2f[3]), pad); hbuf.Hzz .*= R2
+    imfilter!(hbuf.Hxy, ρ_R, (d1f[1], d1f[2], idf[3]), pad); hbuf.Hxy .*= R2
+    imfilter!(hbuf.Hxz, ρ_R, (d1f[1], idf[2], d1f[3]), pad); hbuf.Hxz .*= R2
+    imfilter!(hbuf.Hyz, ρ_R, (idf[1], d1f[2], d1f[3]), pad); hbuf.Hyz .*= R2
+    
+    return hbuf
+end
+
+# ============================================================
+# NEXUS+ — filaments & walls: Hessian of f_R = C·10^(G_R * log10 ρ)
+# ============================================================
+
+"""
+    compute_hessian_logfield!(hbuf, ρ, R; tmp_derivs, pad)
+
+NEXUS+ filament/wall signature. Computes:
+
+    g_R  = G_R * log10(ρ)
+    f_R  = C · 10^g_R,   C chosen so ⟨f_R⟩ = ⟨ρ⟩
+
+    H_ij = R² ∂ᵢ∂ⱼ f_R
+
+"""
+function compute_hessian_logfield!(hbuf::HessianBuffers,
+                                    ρ::AbstractArray{<:Real,3},
+                                    R::Real;
+                                    tmp_derivs::Union{Nothing,NTuple{3,AbstractArray{<:Real,3}}} = nothing,
+                                    pad = "reflect")
+    _compute_hessian_logfield_finite_diff!(hbuf, ρ, R; tmp_derivs, pad)
+    return hbuf
+end
+
+# Finite-difference derivatives on already-smoothed log field
+function _compute_hessian_logfield_finite_diff!(hbuf::HessianBuffers,
+                                                 ρ::AbstractArray{<:Real,3},
+                                                 R::Real;
+                                                 tmp_derivs::Union{Nothing,NTuple{3,AbstractArray{<:Real,3}}} = nothing,
+                                                 pad = "reflect")
+    # ln10 = log(10.0)
+    # dims = size(ρ)
+    gk = GaussKernels(R)
+    
+    f_R = exp10.(imfilter(log10.(ρ), gk.kernels, pad))
+    f_R .*= mean(ρ) / mean(f_R)
+        
+    mk(v, dim) = KernelFactors.ReshapedOneD{3, dim-1}(v)
+    d1f = ntuple(dim -> mk(_FD_D1, dim), 3)
+    d2f = ntuple(dim -> mk(_FD_D2, dim), 3)
+    idf = ntuple(dim -> mk(_FD_ID, dim), 3)
+    
+    R2 = R^2
+    
+    imfilter!(hbuf.Hxx, f_R, (d2f[1], idf[2], idf[3]), pad); hbuf.Hxx .*= R2
+    imfilter!(hbuf.Hyy, f_R, (idf[1], d2f[2], idf[3]), pad); hbuf.Hyy .*= R2
+    imfilter!(hbuf.Hzz, f_R, (idf[1], idf[2], d2f[3]), pad); hbuf.Hzz .*= R2
+    imfilter!(hbuf.Hxy, f_R, (d1f[1], d1f[2], idf[3]), pad); hbuf.Hxy .*= R2
+    imfilter!(hbuf.Hxz, f_R, (d1f[1], idf[2], d1f[3]), pad); hbuf.Hxz .*= R2
+    imfilter!(hbuf.Hyz, f_R, (idf[1], d1f[2], d1f[3]), pad); hbuf.Hyz .*= R2
+
+    return hbuf
+end
+
+"""
+    signatures_hessian!(sim_box::SimBox, ρ::Array{<:Real,3}, R::Real; mode::Symbol)
+
+Compute Hessian eigenvalue signatures (node, filament, wall) at smoothing scale R. Use a convolution in real space instead of Fourier filtering. This is provided for testing and comparison purposes.
+"""
+function signatures_hessian!(
+    sim_box::SimBox, 
+    ρ::Array{<:Real,3}, 
+    R::Real, 
+    hbuf::HessianBuffers; 
+    mode::Symbol,
+    pad = "reflect"
+    )
+
+    N = sim_box.N
+    Δx = sim_box.L / sim_box.N
+    R_grid = R / Δx
+
+    if mode == :node
+		compute_hessian_nodes!(hbuf, ρ, R_grid; pad=pad)
+		
+    elseif mode == :fila_wall
+        compute_hessian_logfield!(hbuf, ρ, R_grid; pad=pad)
+    else
+        error("Unknown mode: $mode. Use :node or :fila_wall.")
+    end
+
+    # Allocate only the signatures needed for NEXUS(+)
+    S = allocate_signature_arrays(N, mode)
+
+    S_n = S.S_n
+    S_f = S.S_f
+    S_w = S.S_w
+
+    # Compute eigenvalues + signatures voxel by voxel
+    @inbounds for I in eachindex(hbuf.Hxx)
+        l1, l2, l3 = compute_eigenvalues_sym3(hbuf.Hxx[I], hbuf.Hyy[I], hbuf.Hzz[I], hbuf.Hxy[I], hbuf.Hyz[I], hbuf.Hxz[I])
+
+        compute_signatures!(S_n, S_f, S_w, I, l1, l2, l3)
+
+    end
+
+    return S_n, S_f, S_w
+end
+
+@inline function _update_max!(dst::Array{Float32,3}, src::Array{Float32,3})
+    @inbounds @simd for i in eachindex(dst)
+        v = src[i]
+        if v > dst[i]; dst[i] = v; end
+    end
+end
+
+"""
+    multiscale_signature_max!(filt::FourierFilter, sim_box::SimBox, ρ::Array{<:Real,3}, filter_scales; mode::Symbol)
+
+Compute maximum signatures across multiple scales.
 """
 function multiscale_signature_max!(
     filt::FourierFilter, 
@@ -300,26 +469,57 @@ function multiscale_signature_max!(
         # compute signatures at scale R
         S_n, S_f, S_w = signatures_hessian!(filt, sim_box, ρ, R, hbuf; mode=mode)
 
-        # update maximum signatures to the corresponding mode
         if mode == :node
-            @inbounds @simd for i in eachindex(S_n_max)
-                val = S_n[i]
-                if val > S_n_max[i]
-                    S_n_max[i] = val
-                end
-            end
+            _update_max!(S_n_max, S_n)
         elseif mode == :fila_wall
-            @inbounds @simd for i in eachindex(S_f_max)
-                valf = S_f[i]
-                if valf > S_f_max[i]
-                    S_f_max[i] = valf
-                end
+            _update_max!(S_f_max, S_f)
+            _update_max!(S_w_max, S_w)
+        end
+    end
 
-                valw = S_w[i]
-                if valw > S_w_max[i]
-                    S_w_max[i] = valw
-                end
-            end
+    return S_n_max, S_f_max, S_w_max
+end
+
+"""
+    multiscale_signature_max!(sim_box::SimBox, ρ::Array{<:Real,3}, filter_scales; mode::Symbol, pad)
+
+Compute maximum signatures across multiple scales using real-space convolution.
+Provided for comparison and testing; prefer the `FourierFilter` method for production use.
+"""
+function multiscale_signature_max!(
+    sim_box::SimBox,
+    ρ::Array{<:Real,3},
+    filter_scales;
+    mode::Symbol,
+    pad = "reflect"
+    )
+    N = sim_box.N
+
+    S = allocate_signature_arrays(N, mode)
+
+    S_n_max = S.S_n
+    S_f_max = S.S_f
+    S_w_max = S.S_w
+
+    if S_n_max !== nothing
+        fill!(S_n_max, -Inf32)
+    end
+    if S_f_max !== nothing
+        fill!(S_f_max, -Inf32)
+        fill!(S_w_max, -Inf32)
+    end
+
+    hbuf = HessianBuffers(N)
+
+    for R in filter_scales
+        @info "Processing scale R = $(round(R, digits=3))"
+        S_n, S_f, S_w = signatures_hessian!(sim_box, ρ, R, hbuf; mode=mode, pad=pad)
+
+        if mode == :node
+            _update_max!(S_n_max, S_n)
+        elseif mode == :fila_wall
+            _update_max!(S_f_max, S_f)
+            _update_max!(S_w_max, S_w)
         end
     end
 

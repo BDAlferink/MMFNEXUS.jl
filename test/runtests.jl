@@ -6,44 +6,126 @@ using JLD2
 
 # Load test density field
 function load_data(file)
-    fid = h5open(file, "r")
-    densityfield = read(fid["densityfield"])
-    close(fid)
-
-    densityfield = densityfield ./ mean(densityfield)
-    return densityfield
+    fid = h5open(file, "r") do fid
+        densityfield = read(fid["densityfield"])
+        return densityfield ./ mean(densityfield)
+    end
 end
+
+const densityfield = load_data("data/densityfield.h5")
+const N = 64 # number of gridpoints per dimension
+const L = 50. # Box size in cMpc/h
+const M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
+
+const KWARGS = (
+    filter_parse = 6,
+    Δ = 370.0,
+    min_node_mass = 1e13,
+    min_fila_volume = 10,
+    min_wall_volume = 10,
+    R0 = 0.5,
+    level = :none,
+)
 
 @testset "MMFNEXUS.jl" begin
 
-    densityfield = load_data("data/densityfield.h5");
+    @testset "SimBox" begin
+        sim = MMFNEXUS.SimBox(N, L, M)
+        @test sim.ρ_mean ≈ M / L^3
+        @test sim.voxel_volume ≈ (L / N)^3
+        @test sim.N == N
+    end
 
-    # Load test comparison data
-    @load "data/NEXUSTestClassification.jld2" test_output
+    @testset "parse_filter_scales" begin
+        # integer dispatch
+        scales = MMFNEXUS.parse_filter_scales(4, 0.5)
+        @test length(scales) == 5          # n = 0:4
+        @test scales[1] ≈ 0.5
+        @test scales[2] ≈ 0.5 * sqrt(2)
 
-    # set NEXUS+ parameters
-    min_scale = .5 #minimum smoothing scale in Mpc/h
-    filter_scales = 6 #max n in min_scale*(√2)^n, starting at n=0
-    density_contrast_node = 370.
-    min_node_mass = 1e13 #Msun/h
-    min_fila_volume = 10 #(Mpc/h)^3
-    min_wall_volume = 10 #(Mpc/h)^3
+        # vector dispatch passthrough
+        explicit = [0.5, 1.0, 2.0]
+        @test MMFNEXUS.parse_filter_scales(explicit) == explicit
+    end
 
-    # set box parameters
-    N = 64 # number of gridpoints per dimension
-    L = 50. # Box size in Mpc/h
-    M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
+    @testset "compute_eigenvalues_sym3" begin
+        # diagonal matrix — known eigenvalues
+        l1, l2, l3 = MMFNEXUS.compute_eigenvalues_sym3(3.0, 1.0, 2.0, 0.0, 0.0, 0.0)
+        @test l1 ≈ 1.0
+        @test l2 ≈ 2.0
+        @test l3 ≈ 3.0
 
-    NEXUSTest = NEXUS_Plus(densityfield, N, L, M; filter_parse = filter_scales, Δ = density_contrast_node, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, min_wall_volume = min_wall_volume, R0 = min_scale, level = :none);
+        # known symmetric matrix with known eigenvalues
+        # [ 2  1  0 ]  eigenvalues: 1, 1, 3
+        # [ 1  2  0 ]
+        # [ 0  0  1 ]
+        l1, l2, l3 = MMFNEXUS.compute_eigenvalues_sym3(2.0, 2.0, 1.0, 1.0, 0.0, 0.0)
+        @test l1 ≈ 1.0 atol=1e-10
+        @test l2 ≈ 1.0 atol=1e-10
+        @test l3 ≈ 3.0 atol=1e-10
 
-    #test nodes
-    @test NEXUSTest[1] ≈ test_output[1]
-    #test filaments
-    @test NEXUSTest[2] ≈ test_output[2]
-    #test walls
-    @test NEXUSTest[3] ≈ test_output[3]
-    #test voids
-    @test NEXUSTest[4] ≈ test_output[4]
+        # output is always sorted ascending
+        l1, l2, l3 = MMFNEXUS.compute_eigenvalues_sym3(1.0, 3.0, 2.0, 0.5, 0.3, 0.1)
+        @test l1 ≤ l2 ≤ l3
+    end    
 
-    println(size(NEXUSTest[4]))
+    @testset "NEXUS_Plus method: Fourier" begin
+        @load "data/NEXUSTestClassification.jld2" test_output
+        result = NEXUS_Plus(densityfield, N, L, M; KWARGS..., method = :fourier)
+        @test result[1] == test_output[1]   # nodes   — BitArray, use == not ≈
+        @test result[2] == test_output[2]   # filaments
+        @test result[3] == test_output[3]   # walls
+        @test result[4] == test_output[4]   # voids
+    end
+
+    @testset "NEXUS_Plus: finitediff method" begin
+        @load "data/NEXUSTestClassification_finitediff.jld2" test_output_finitediff
+        result = NEXUS_Plus(densityfield, N, L, M; KWARGS..., method = :finitediff)
+        @test result[1] == test_output_finitediff[1]
+        @test result[2] == test_output_finitediff[2]
+        @test result[3] == test_output_finitediff[3]
+        @test result[4] == test_output_finitediff[4]
+    end
+
+    @testset "Invalid inputs" begin
+        @test_throws Exception NEXUS_Plus(TEST_DATA, N, L, M; KWARGS..., method = :invalid)
+        @test_throws Exception NEXUS_Plus(TEST_DATA, N, L, M; KWARGS..., level = :invalid)
+    end
+
+    # # Load test comparison data
+    # @load "data/NEXUSTestClassification.jld2" test_output
+    # @load "data/NEXUSTestClassification_finitediff.jld2" test_output_finitediff
+    # # set NEXUS+ parameters
+    # min_scale = .5 #minimum smoothing scale in Mpc/h
+    # filter_scales = 6 #max n in min_scale*(√2)^n, starting at n=0
+    # density_contrast_node = 370.
+    # min_node_mass = 1e13 #Msun/h
+    # min_fila_volume = 10 #(Mpc/h)^3
+    # min_wall_volume = 10 #(Mpc/h)^3
+
+    # # set box parameters
+    # N = 64 # number of gridpoints per dimension
+    # L = 50. # Box size in Mpc/h
+    # M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
+
+    # NEXUSTest = NEXUS_Plus(densityfield, N, L, M; filter_parse = filter_scales, Δ = density_contrast_node, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, min_wall_volume = min_wall_volume, R0 = min_scale, level = :none);
+    # @btime NEXUS_Plus($densityfield, $N, $L, $M; filter_parse = $filter_scales, Δ = $density_contrast_node, min_node_mass = $min_node_mass, min_fila_volume = $min_fila_volume, min_wall_volume = $min_wall_volume, R0 = $min_scale, level = :none);
+    # NEXUSTest_finitediff = NEXUS_Plus(densityfield, N, L, M; filter_parse = filter_scales, Δ = density_contrast_node, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, min_wall_volume = min_wall_volume, R0 = min_scale, level = :none, method = :finitediff);
+    # @btime NEXUS_Plus($densityfield, $N, $L, $M; filter_parse = $filter_scales, Δ = $density_contrast_node, min_node_mass = $min_node_mass, min_fila_volume = $min_fila_volume, min_wall_volume = $min_wall_volume, R0 = $min_scale, level = :none, method = :finitediff);  
+
+
+    # #test nodes
+    # @test NEXUSTest[1] ≈ test_output[1]
+    # @test NEXUSTest_finitediff[1] ≈ test_output_finitediff[1]
+    # #test filaments
+    # @test NEXUSTest[2] ≈ test_output[2]
+    # @test NEXUSTest_finitediff[2] ≈ test_output_finitediff[2]
+    # #test walls
+    # @test NEXUSTest[3] ≈ test_output[3]
+    # @test NEXUSTest_finitediff[3] ≈ test_output_finitediff[3]
+    # #test voids
+    # @test NEXUSTest[4] ≈ test_output[4]
+    # @test NEXUSTest_finitediff[4] ≈ test_output_finitediff[4]
+
+    # println(size(NEXUSTest[4]))
 end

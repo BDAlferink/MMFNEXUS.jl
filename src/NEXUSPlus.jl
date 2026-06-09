@@ -7,40 +7,72 @@
     M : Mass in Msun/h contained in the box
     Generates also additional useful parameters:
     ρ_mean : Mean density in Msun/h/(cMpc/h)^3
-    VoxelVolume : Volume of a voxel in (cMpc/h)^3
+    voxel_volume : Volume of a voxel in (cMpc/h)^3
 
 """
 struct SimBox
     N::Int
-    L::Float64
-    M::Float64
+    L::Real
+    M::Real
     ρ_mean::Float64
-    VoxelVolume::Float64
+    voxel_volume::Float64
 
     function SimBox(
-        N::Int, 
-        L::Float64, 
-        M::Float64
+        N::Int,
+        L::Real,
+        M::Real
         )
-        ρ_mean = M / L^3
-        VoxelVolume = (L / N)^3
-        new(N, L, M, ρ_mean, VoxelVolume)
+        ρ_mean = Float64(M) / Float64(L)^3
+        voxel_volume = (Float64(L) / N)^3
+        new(N, Float64(L), Float64(M), ρ_mean, voxel_volume)
     end
 end
 
 
+"""
+    NEXUS_Plus(ρ, N, L, M; kwargs...) -> (node, filament, wall, void)
+
+Run the NEXUS+ cosmic web classification algorithm on a 3D density field.
+
+# Arguments
+- `ρ`: 3D density field, `N×N×N` array of real values
+- `N`: Number of grid points per dimension
+- `L`: Box size in cMpc/h
+- `M`: Total mass in the box in Msun/h
+
+# Keyword Arguments
+- `filter_parse`: Number of filter scales (Integer, starting from `R0` in √2 steps) or
+  an explicit vector/tuple of scales in Mpc/h. Default: `4`
+- `R0`: Minimum smoothing scale in Mpc/h. Only used when `filter_parse` is an Integer. Default: `1.0`
+- `Δ`: Overdensity contrast threshold for node significance. Default: `370.0`
+- `min_node_mass`: Minimum node mass in Msun/h. Default: `1e13`
+- `min_fila_volume`: Minimum filament volume in (Mpc/h)³. Default: `10`
+- `min_wall_volume`: Minimum wall volume in (Mpc/h)³. Default: `10`
+- `method`: Filtering method. `:fourier` (default) uses FFT-based Gaussian smoothing;
+  `:finitediff` uses real-space convolution (slower, intended for testing/comparison).
+- `pad`: Boundary padding used with `method = :finitediff`. Accepts any boundary condition
+  supported by `ImageFiltering.imfilter`: `"reflect"` (default), `"circular"`,
+  `"replicate"`, `"symmetric"`.
+- `level`: Logging verbosity. `:info` (default), `:debug` (includes diagnostic plots), `:none`.
+
+
+# Returns
+Four `BitArray`s of size `N×N×N`: `(node, filament, wall, void)`.
+"""
 function NEXUS_Plus(
-    ρ::AbstractArray{<:Real,3}, 
-    N::Integer, 
-    L::Real, 
-    M::Real; 
-    filter_parse = 4, 
-    Δ::Real = 370., 
-    min_node_mass::Real = 1e13, 
-    min_fila_volume::Real = 10, 
-    min_wall_volume::Real = 10, 
-    R0::Real = 1.,
-    level::Symbol = :info
+    ρ::AbstractArray{<:Real,3},
+    N::Integer,
+    L::Real,
+    M::Real;
+    filter_parse = 4,
+    Δ::Real = 370.0,
+    min_node_mass::Real = 1e13,
+    min_fila_volume::Real = 10,
+    min_wall_volume::Real = 10,
+    R0::Real = 1.0,
+    level::Symbol = :info,
+    method::Symbol = :fourier,
+    pad = "reflect",
 )
     # Parse logging level. Options: 
     # - :debug elaborate with some figures
@@ -55,12 +87,18 @@ function NEXUS_Plus(
 
     # Initialize simulation box and Fourier filter
     sim_box = SimBox(N, L, M)
-    filt = FourierFilter(sim_box)
 
     @info "Starting node signature calculation..."
 
+    method ∈ (:fourier, :finitediff) || error("Unknown method: $method. Use :fourier or :finitediff.")
+
     # find maximum signatures in scalespace for node identification, node option means NEXUS
-    S_node_max, _, _ = multiscale_signature_max!(filt, sim_box, ρ, filter_scales; mode=:node);
+    if method == :fourier
+        filt = FourierFilter(sim_box)
+        S_node_max, _, _ = multiscale_signature_max!(filt, sim_box, ρ, filter_scales; mode=:node)
+    else
+        S_node_max, _, _ = multiscale_signature_max!(sim_box, ρ, filter_scales; mode=:node, pad=pad)
+    end
 
     @info ""
     @info "Starting node identification..."
@@ -72,18 +110,23 @@ function NEXUS_Plus(
     @info ""
     @info "Starting filament and wall signature calculation..."
     # find maximum signatures in scalespace for filament and wall identification, fila_wall option means NEXUS+ (logspace filter)
-    _, S_fila_max, S_w_max = multiscale_signature_max!(filt, sim_box, ρ, filter_scales; mode=:fila_wall);
+
+    if method == :fourier
+        _, S_fila_max, S_wall_max = multiscale_signature_max!(filt, sim_box, ρ, filter_scales; mode=:fila_wall)
+    else
+        _, S_fila_max, S_wall_max = multiscale_signature_max!(sim_box, ρ, filter_scales; mode=:fila_wall, pad=pad)
+    end
 
     @info ""
     @info "Starting filament identification..."
     # find filament bool field given maximum signatures and min_volume
-    clean_fila, S_f_th, S_f_midpoints, f_Mass_diff_sq = fila_wall_field(sim_box, ρ, S_fila_max, clean_node, min_fila_volume; s_low=1e-5, s_high=9e-1, stepsize=0.1);
+    clean_fila, S_f_th, S_f_midpoints, f_Mass_diff_sq = fila_wall_field!(sim_box, ρ, S_fila_max, clean_node, min_fila_volume; s_low=1e-5, s_high=9e-1, stepsize=0.1);
     @info "Optimal filament signature threshold: $(round(S_f_th, digits=3))"
 
     @info ""
     @info "Starting wall identification..."
     # find wall bool field given maximum signatures and min_volume
-    clean_wall, S_w_th, S_w_midpoints, w_Mass_diff_sq = fila_wall_field(sim_box, ρ, S_w_max, clean_node .| clean_fila, min_wall_volume; s_low=1e-5, s_high=9e-1, stepsize=0.1);
+    clean_wall, S_w_th, S_w_midpoints, w_Mass_diff_sq = fila_wall_field!(sim_box, ρ, S_wall_max, clean_node .| clean_fila, min_wall_volume; s_low=1e-5, s_high=9e-1, stepsize=0.1);
     @info "Optimal wall signature threshold: $(round(S_w_th, digits=3))"
 
 
@@ -171,7 +214,6 @@ function NEXUS_Plus(
         Plots.plot!(p, [], [], linewidth=2, linecolor=:red, label="Nodes")
         display(p)
     end
-
 
     return clean_node, clean_fila, clean_wall, clean_void
 end

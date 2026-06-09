@@ -70,8 +70,8 @@ function node_properties(labels,
     )
     volume, mass = accumulate_components(labels, ρ)
 
-    volume .*= sim_box.VoxelVolume
-    mass   .*= sim_box.VoxelVolume * sim_box.ρ_mean
+    volume .*= sim_box.voxel_volume
+    mass   .*= sim_box.voxel_volume * sim_box.ρ_mean
 
     density_contrast = mass ./ volume ./ sim_box.ρ_mean
     return volume, mass, density_contrast
@@ -88,12 +88,12 @@ fraction_above_threshold(values, Δ) =
     This computation is used to find the optimal signature threshold for node identification.
 """
 function node_threshold_fraction(
-    sim_box, 
-    ρ, 
-    signature, 
-    S_th, 
-    min_node_mass, 
-    Δ
+    sim_box::SimBox,
+    ρ::AbstractArray{<:Real,3},
+    signature::AbstractArray{<:Real,3},
+    S_th::Real,
+    min_node_mass::Real,
+    Δ::Real
 )
     mask = signature .> S_th
     labels = label_components(mask)
@@ -130,26 +130,50 @@ function insignificant_node_remover(
 end
 
 function optimal_node_signature_threshold(
-    sim_box, ρ, signatures, min_node_mass, Δ;
-    s_low, s_high, fraction_target
+    sim_box::SimBox,
+    ρ::AbstractArray{<:Real,3},
+    signatures::AbstractArray{<:Real,3},
+    min_node_mass::Real,
+    Δ::Real;
+    s_low::Real,
+    s_high::Real,
+    fraction_target::Real
 )
+
     S_low  = maximum(signatures) * s_low
     S_high = maximum(signatures) * s_high
 
-    # check if the given signature bounds are bounding the correct region
-    if (node_threshold_fraction(sim_box, ρ, signatures, S_low, min_node_mass, Δ) > fraction_target) && (node_threshold_fraction(sim_box, ρ, signatures, S_high, min_node_mass, Δ) < fraction_target)
-        error("Signature bounds are not valid")
+    frac_low  = node_threshold_fraction(sim_box, ρ, signatures, S_low,  min_node_mass, Δ)
+    frac_high = node_threshold_fraction(sim_box, ρ, signatures, S_high, min_node_mass, Δ)
+
+    if frac_low ≥ fraction_target
+        @warn "Node threshold search failed: S_low does not bracket from below (fraction=$frac_low, target=$fraction_target). Skipping node detection."
+        return nothing
+    end
+    if frac_high ≤ fraction_target
+        @warn "Node threshold search failed: S_high does not bracket from above (fraction=$frac_high, target=$fraction_target). Skipping node detection."
         return nothing
     end
 
     f(x) = node_threshold_fraction(sim_box, ρ, signatures, x, min_node_mass, Δ) - fraction_target
 
-    return fzero(f, (S_low, S_high), Roots.Brent(), atol=1e-3)
+    try
+        return fzero(f, (S_low, S_high), Roots.Brent(), atol=1e-3)
+    catch e
+        @warn "Node threshold search failed: Brent's method did not converge ($e). Skipping node detection."
+        return nothing
+    end
 end
 
 
 """
     node_field(sim_box::SimBox, ρ::Array{<:Real,3}, signatures::Array{<:Real,3}, min_node_mass::Real, Δ::Real; s_low=1e-5, s_high=9e-1, fraction_target=0.5)
+
+    # Keyword Arguments
+    - `s_low`: Lower bound for threshold search as a fraction of the maximum signature. 
+   Should be small enough to include all potential structures. Default: `1e-5`
+    - `s_high`: Upper bound for threshold search as a fraction of the maximum signature.
+    Should be below 1 to avoid empty fields. Default: `9e-1`
 
     Generate clean node field based on significant nodes above optimal signature threshold.
 """
@@ -168,11 +192,15 @@ function node_field(
         s_low=s_low, s_high=s_high, fraction_target=fraction_target
     )
 
+    if S_th === nothing
+        @warn "No nodes identified — returning empty node field."
+        return falses(size(signatures))
+    end
+
     labels = insignificant_node_remover(sim_box, ρ, signatures, S_th, min_node_mass)
     @info "Optimal node signature threshold: $(round(S_th, digits=3))"
     @info "Number of identified nodes: $(maximum(label_components(labels)))"
     clean_node = (signatures .* labels) .> S_th
-
     return clean_node
 end
 
@@ -194,7 +222,7 @@ function insignificant_fila_wall_remover(
 
     volume, _ = accumulate_components(labels)
 
-    volume .= Float32.(volume) .* sim_box.VoxelVolume
+    volume .= Float32.(volume) .* sim_box.voxel_volume
 
     # Only keep objects that have volume > min_vol
     valid_ids = valid_by_volume(volume, min_vol)
@@ -208,9 +236,6 @@ end
 
     Compute dM^2 / dlog10(S) for a range of signature thresholds S_range.
 """
-
-using Base.Threads
-
 function ΔMsq(
     ρ::AbstractArray{<:Real,3}, 
     signatures::AbstractArray{<:Real,3}, 
@@ -237,11 +262,17 @@ function ΔMsq(
 end
 
 """
-    fila_wall_field(sim_box::SimBox, ρ::Array{<:Real,3}, signatures::Array{<:Real,3}, clean_field, min_vol::Real; s_low=1e-5, s_high=1e-2, stepsize=0.1)
+    fila_wall_field!(sim_box::SimBox, ρ::Array{<:Real,3}, signatures::Array{<:Real,3}, clean_field, min_vol::Real; s_low=1e-5, s_high=1e-2, stepsize=0.1)
+
+    # Keyword Arguments
+    - `s_low`: Lower bound for threshold search as a fraction of the maximum signature. 
+   Should be small enough to include all potential structures. Default: `1e-5`
+    - `s_high`: Upper bound for threshold search as a fraction of the maximum signature.
+    Should be below 1 to avoid empty fields. Default: `9e-1`
 
     Generate clean filament/wall field based on significant filaments/walls above optimal signature threshold.
 """
-function fila_wall_field(
+function fila_wall_field!(
     sim_box::SimBox, 
     ρ::AbstractArray{<:Real,3}, 
     signatures::AbstractArray{<:Real,3}, 

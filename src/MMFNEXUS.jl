@@ -1,14 +1,14 @@
 module MMFNEXUS
 
     # ---- imports ----
-    using HDF5
     using FFTW
-    using LinearAlgebra
     using Images
+    using Plots
     using Statistics:mean
     using Roots
     using Base.Threads
     using Logging
+    using ImageFiltering
 
     # ---- set threads ----
     FFTW.set_num_threads(Threads.nthreads())
