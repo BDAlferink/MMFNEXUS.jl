@@ -8,9 +8,7 @@
 
 Documentation for [MMFNEXUS](https://github.com/BDAlferink/MMFNEXUS.jl).
 
-UNDER DEVELOPMENT
-
-This is the Julia implementation for the NEXUS+ algorithm. More information and standalone application can be found on our website in the future.
+This is the Julia implementation for the NEXUS+ algorithm. 
 
 ## Installation
 
@@ -53,4 +51,5 @@ The original NEXUS+ algorithm published as [NEXUS: tracing the cosmic web connec
 We thank:
 - Rien van de Weijgaert
 - Job Feldbrugge
+- Bernard J. T. Jones
 - Ivan Spirov

@@ -15,7 +15,7 @@ The algorithm is outlined by the following steps:
 
 The environments are found hyrarchically, in the sense that first nodes are detected, then filaments, then walls, and anything not identified is considered a void. This is done as, for example, typically nodes have both a strong node and filament siganture, etc.
 
-Below we elaborate on each step. This theory section is paraphrasiing the detailed explanation found in the original [NEXUS publication](https://academic.oup.com/mnras/article/429/2/1286/1038906).
+Below we elaborate on each step. This theory section is paraphrasing the detailed explanation found in the original [NEXUS publication](https://academic.oup.com/mnras/article/429/2/1286/1038906).
 
 ### Filtering
 The gaussian filter of width $R_n$ is applied in Fourier space. First for node identification, this is done on the density field $f(\bm{x})$,
@@ -53,6 +53,7 @@ With this we can compute the Hessian of the the field for each voxel. The hessia
 \end{equation}
 ```
 This is also computed in Fourier space.
+The derivatives can also be calculated with finite differences which is given as an option in this code.
 the Hessian eigenvalues are calculated as,
 ```math
 \det(H(\bm{x},R_n) - \lambda I) = 0,

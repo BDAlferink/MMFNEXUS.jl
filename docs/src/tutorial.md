@@ -3,7 +3,7 @@ CurrentModule = MMFNEXUS
 ```
 
 # Tutorial
-In this tutorial, we demonstrate how to use MMF NEXUS on a density field. The density field used in this example is obtained from using [Phase Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl) on the particle distributino of a 64^3 GADGET-4 simulation. 
+In this tutorial, we demonstrate how to use MMF NEXUS on a density field. The density field used in this example is obtained from using [Phase Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl) on the particle distribution of a 64^3 GADGET-4 simulation. 
 
 In principle MMF NEXUS can be applied to any continous density field. Due to the filtering in log space, NEXUS+ requires the field to be positive valued everywhere. We suggest to use [DTFE](https://github.com/MariusCautun/DTFE) or [Phase Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl) for the density field reconstructions as those methods preserve the geometric properties of the matter distribution and are positive valued at each point.
 
@@ -31,12 +31,12 @@ We now set up the simulation box.
 
 ```@example tutorial1
 # set up the box
-N = 64 # number of voxels per side
-L = 50. # side length in Mpc/h
-M = 4.075e10 * 64^3 # total mass contained in the box in in Msun
+N = 64; # number of voxels per side
+L = 50.; # side length in Mpc/h
+M = 4.075e10 * 64^3; # total mass contained in the box in in Msun
 
 ```
-The NEXUS+ routine is called with the function `NEXUS_Plus`, which takes the density field and a number of keyword arguments. These will be explained below. One of the keyword arguments is a verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on. `NEXUS_Plus` gives four boolean matrices where for each environemt a `1` means the voxel is considered to be in the corresponding environemnt
+The NEXUS+ routine is called with the function `NEXUS_Plus`, which takes the density field and a number of keyword arguments. These will be explained below. One of the keyword arguments is a verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on. `NEXUS_Plus` returns four boolean matrices where for each environment a `1` means the voxel is considered to be in the corresponding environemnt.
 
 ```@example tutorial1
 MMF_node, MMF_fila, MMF_wall, MMF_void = NEXUS_Plus(densityfield, N, L, M; filter_parse = 6 ,R0 = .5, level = :info);
@@ -66,12 +66,31 @@ min_wall_volume::Real = 10 # minimum volume of a wall in (Mpc/h)^3
 R0::Real = 1. #minimum smoothing scale in Mpc/h
 filter_parse = 4 #max n in min_scale*(√2)^n, starting at n=0
 level::Symbol = :info # verbose level
+method::Symbol = :fourier # compute derivatives in fourier space (as opposed to using finite differences)
+pad = "periodic"
 ```
-Δ is the density contrast for node detection, this is further explained in the theory section. The minimum node mass is used as a physical selection criteria to avoid spurious detections of tiny dense clumps as clusters. Similarly,the minimum fila/wall argument is used to avoid spurious detections. R0 is the minimum filtering scale. Filter parse takes either an integer, in which case the filter scales are R0(√2)^n where n are integers from 0 up to the given integer, or a tuple/array of all the user defined scales in Mpc/h can be given directly. In case a tuple is given, the argument R0 does not do anything. The level parameter lets us select the verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on.
+Δ is the density contrast for node detection, this is further explained in the theory section. The minimum node mass is used as a physical selection criteria to avoid spurious detections of tiny dense clumps as clusters. Similarly,the minimum fila/wall argument is used to avoid spurious detections. R0 is the minimum filtering scale. Filter parse takes either an integer, in which case the filter scales are R0(√2)^n where n are integers from 0 up to the given integer, or a tuple/array of all the user defined scales in Mpc/h can be given directly. In case a tuple is given, the argument R0 does not do anything. 
+
+The level parameter lets us select the verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calulation is doing. `debug` gives additional information and figures of the threshold calulation to see what is going on. The method parameter can be set to compute the hessian derivatives in fourier space or using finite differences. The later can be useful when dealing with masks and boxes which do not have periodic boundaries as this method is effected less by artefacts due to discontinous boundaries. In case the `:finitediff` method is used, we can set the padding. We suggest `periodic` for periodic boundaries or `reflect` otherwise. This might result in artificial structures at the boundaries but is least affected overall.
 
 The function with all keyword arguments can be called as:
 ```julia
 MMF_node, MMF_filament, MMF_wall, MMF_void = NEXUS_Plus(densityField, N, L, totalMass; filter_parse = filter_parse, Δ = Δ, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, minimum_wall_volume = min_wall_volume; R0 = R0, level = level);
+NEXUS_Plus(
+    densityField,
+    N,
+    L,
+    totalMass;
+    filter_parse = filter_parse,
+    Δ = Δ,
+    min_node_mass = min_node_mass,
+    min_fila_volume = min_fila_volume,
+    min_wall_volume = min_wall_volume,
+    R0 = R0,
+    level = level,
+    method = method,
+    pad = pad,
+);
 ```
 
 ## Multithreading

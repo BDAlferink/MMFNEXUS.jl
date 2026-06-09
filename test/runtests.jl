@@ -92,40 +92,4 @@ const KWARGS = (
         @test_throws Exception NEXUS_Plus(TEST_DATA, N, L, M; KWARGS..., level = :invalid)
     end
 
-    # # Load test comparison data
-    # @load "data/NEXUSTestClassification.jld2" test_output
-    # @load "data/NEXUSTestClassification_finitediff.jld2" test_output_finitediff
-    # # set NEXUS+ parameters
-    # min_scale = .5 #minimum smoothing scale in Mpc/h
-    # filter_scales = 6 #max n in min_scale*(√2)^n, starting at n=0
-    # density_contrast_node = 370.
-    # min_node_mass = 1e13 #Msun/h
-    # min_fila_volume = 10 #(Mpc/h)^3
-    # min_wall_volume = 10 #(Mpc/h)^3
-
-    # # set box parameters
-    # N = 64 # number of gridpoints per dimension
-    # L = 50. # Box size in Mpc/h
-    # M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
-
-    # NEXUSTest = NEXUS_Plus(densityfield, N, L, M; filter_parse = filter_scales, Δ = density_contrast_node, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, min_wall_volume = min_wall_volume, R0 = min_scale, level = :none);
-    # @btime NEXUS_Plus($densityfield, $N, $L, $M; filter_parse = $filter_scales, Δ = $density_contrast_node, min_node_mass = $min_node_mass, min_fila_volume = $min_fila_volume, min_wall_volume = $min_wall_volume, R0 = $min_scale, level = :none);
-    # NEXUSTest_finitediff = NEXUS_Plus(densityfield, N, L, M; filter_parse = filter_scales, Δ = density_contrast_node, min_node_mass = min_node_mass, min_fila_volume = min_fila_volume, min_wall_volume = min_wall_volume, R0 = min_scale, level = :none, method = :finitediff);
-    # @btime NEXUS_Plus($densityfield, $N, $L, $M; filter_parse = $filter_scales, Δ = $density_contrast_node, min_node_mass = $min_node_mass, min_fila_volume = $min_fila_volume, min_wall_volume = $min_wall_volume, R0 = $min_scale, level = :none, method = :finitediff);  
-
-
-    # #test nodes
-    # @test NEXUSTest[1] ≈ test_output[1]
-    # @test NEXUSTest_finitediff[1] ≈ test_output_finitediff[1]
-    # #test filaments
-    # @test NEXUSTest[2] ≈ test_output[2]
-    # @test NEXUSTest_finitediff[2] ≈ test_output_finitediff[2]
-    # #test walls
-    # @test NEXUSTest[3] ≈ test_output[3]
-    # @test NEXUSTest_finitediff[3] ≈ test_output_finitediff[3]
-    # #test voids
-    # @test NEXUSTest[4] ≈ test_output[4]
-    # @test NEXUSTest_finitediff[4] ≈ test_output_finitediff[4]
-
-    # println(size(NEXUSTest[4]))
 end
