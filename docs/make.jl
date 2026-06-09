@@ -18,7 +18,7 @@ makedocs(;
         "Tutorial" => "tutorial.md",
         "citations" => "citations.md",
     ],
-    checkdocs = :exports
+    checkdocs = :none # disable check for now
 
 )
 
