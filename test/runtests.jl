@@ -15,7 +15,7 @@ end
 const densityfield = load_data("data/densityfield.h5")
 const N = 64 # number of gridpoints per dimension
 const L = 50. # Box size in cMpc/h
-const M = 4.075161606358443e10 * 64^3 # total mass contained in the box in in Msun
+const M = 4.075161606358443e10 * 64^3 # total mass contained in the box in Msun
 
 const KWARGS = (
     filter_parse = 6,
@@ -88,8 +88,12 @@ const KWARGS = (
     end
 
     @testset "Invalid inputs" begin
-        @test_throws Exception NEXUS_Plus(TEST_DATA, N, L, M; KWARGS..., method = :invalid)
-        @test_throws Exception NEXUS_Plus(TEST_DATA, N, L, M; KWARGS..., level = :invalid)
+        @test_throws ArgumentError NEXUS_Plus(densityfield, N+1, L, M; KWARGS...)           # wrong N
+        @test_throws ArgumentError NEXUS_Plus(zeros(N,N,N), N, L, M; KWARGS...)             # non-positive ρ
+        @test_throws ArgumentError NEXUS_Plus(densityfield, N, -1.0, M; KWARGS...)          # L ≤ 0
+        @test_throws ArgumentError NEXUS_Plus(densityfield, N, L, -1.0; KWARGS...)          # M ≤ 0
+        @test_throws Exception     NEXUS_Plus(densityfield, N, L, M; KWARGS..., method = :invalid)
+        @test_throws Exception     NEXUS_Plus(densityfield, N, L, M; KWARGS..., level = :invalid)
     end
 
 end

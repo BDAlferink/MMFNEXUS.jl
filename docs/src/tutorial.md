@@ -5,7 +5,7 @@ CurrentModule = MMFNEXUS
 # Tutorial
 In this tutorial, we demonstrate how to use MMF NEXUS on a density field. The density field used in this example is obtained from using [Phase Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl) on the particle distribution of a 64^3 GADGET-4 simulation. 
 
-In principle MMF NEXUS can be applied to any continous density field. Due to the filtering in log space, NEXUS+ requires the field to be positive valued everywhere. We suggest to use [DTFE](https://github.com/MariusCautun/DTFE) or [Phase Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl) for the density field reconstructions as those methods preserve the geometric properties of the matter distribution and are positive valued at each point.
+In principle MMF NEXUS can be applied to any continuous density field. Due to the filtering in log space, NEXUS+ requires the field to be positive valued everywhere. We suggest to use [DTFE](https://github.com/MariusCautun/DTFE) or [Phase Space DTFE](https://github.com/jfeldbrugge/PhaseSpaceDTFE.jl) for the density field reconstructions as those methods preserve the geometric properties of the matter distribution and are positive valued at each point.
 
 We now start by importing relevant libraries and loading the data. We plot a slice of the density field to illustrate what we are working with.
 
@@ -33,7 +33,7 @@ We now set up the simulation box.
 # set up the box
 N = 64; # number of voxels per side
 L = 50.; # side length in Mpc/h
-M = 4.075e10 * 64^3; # total mass contained in the box in in Msun
+M = 4.075e10 * 64^3; # total mass contained in the box in Msun
 
 ```
 The NEXUS+ routine is called with the function `NEXUS_Plus`, which takes the density field and a number of keyword arguments. These will be explained below. One of the keyword arguments is a verbose level which can be set to `none`, `info`, or `debug`. `info` gives some basic information on what the calculation is doing. `debug` gives additional information and figures of the threshold calculation to see what is going on. `NEXUS_Plus` returns four boolean matrices where for each environment a `1` means the voxel is considered to be in the corresponding environment.

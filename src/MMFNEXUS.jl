@@ -10,9 +10,6 @@ module MMFNEXUS
     using Logging
     using ImageFiltering
 
-    # ---- set threads ----
-    FFTW.set_num_threads(Threads.nthreads())
-
     # ---- includes ----
     # NEXUS+ routine
     include("NEXUSPlus.jl")

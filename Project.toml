@@ -1,11 +1,10 @@
 name = "MMFNEXUS"
 uuid = "10f02407-cee8-4d2b-96f7-1b77de738a58"
 authors = ["Bram D. Alferink <bramalferink@gmail.com> and contributors"]
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
-HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 ImageFiltering = "6a3955dd-da59-5b1f-98d4-e7296123deb5"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -17,7 +16,6 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 FFTW = "1.8"
-HDF5 = "0.17"
 ImageFiltering = "0.7.12"
 Images = "0.25, 0.26"
 OffsetArrays = "1.17.0"
@@ -27,7 +25,9 @@ Statistics = "1"
 julia = "1.10"
 
 [extras]
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["HDF5", "JLD2", "Test"]

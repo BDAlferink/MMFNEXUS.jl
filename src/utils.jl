@@ -11,16 +11,14 @@ function Logging.handle_message(logger::LevelMessageLogger, level, message,
     println("[$(uppercase(string(level)))] $message")
 end
 function setup_logging(level::Symbol)
-    logger = level === :none  ? NullLogger() :
-             level === :info  ? LevelMessageLogger(Logging.Info) :
-             level === :debug ? LevelMessageLogger(Logging.Debug) :
-             error("Unknown log level")
-
-    global_logger(logger)
+    level === :none  ? NullLogger() :
+    level === :info  ? LevelMessageLogger(Logging.Info) :
+    level === :debug ? LevelMessageLogger(Logging.Debug) :
+    error("Unknown log level: $level. Use :none, :info, or :debug.")
 end
 
 function debugplot(f)
-    if Logging.shouldlog(global_logger(), Logging.Debug, @__MODULE__, nothing, nothing)
+    if Logging.shouldlog(current_logger(), Logging.Debug, @__MODULE__, nothing, nothing)
         f()
     end
 end

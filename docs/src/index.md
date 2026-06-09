@@ -17,7 +17,7 @@ The Multiscale Morphology Filter (MMF) NEXUS can be installed with the Julia pac
 add pkg thing in julia
 -->
 
-For now, the Multiscale Morphology Filter (MMF) NEXUS can not be installed through the package manager yet. This will become available soon. In the meantime, it can be installed directly from GitHub using the Julia package manager:
+For now, the Multiscale Morphology Filter (MMF) NEXUS cannot be installed through the package manager yet. This will become available soon. In the meantime, it can be installed directly from GitHub using the Julia package manager:
 
 ```julia
 using Pkg

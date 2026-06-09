@@ -77,8 +77,10 @@ function node_properties(labels,
     return volume, mass, density_contrast
 end
 
-fraction_above_threshold(values, Δ) =
-    sum(values .> Δ) / length(values)
+function fraction_above_threshold(values, Δ)
+    isempty(values) && return 0.0
+    return sum(values .> Δ) / length(values)
+end
 
 
 """
@@ -262,15 +264,29 @@ function ΔMsq(
 end
 
 """
-    fila_wall_field!(sim_box::SimBox, ρ::Array{<:Real,3}, signatures::Array{<:Real,3}, clean_field, min_vol::Real; s_low=1e-5, s_high=1e-2, stepsize=0.1)
+    fila_wall_field!(sim_box, ρ, signatures, clean_field, min_vol; s_low, s_high, stepsize)
+
+    Find the filament or wall boolean field from a maximum-scale signature map.
+
+    Mutates `signatures` in place: voxels already assigned another environment
+    (from `clean_field`) are zeroed out before the threshold search, enforcing the
+    node → filament → wall hierarchical detection.
+
+    # Arguments
+    - `sim_box`: Simulation box parameters.
+    - `ρ`: Normalized density field.
+    - `signatures`: Maximum-scale signature array. Modified in place (see above).
+    - `clean_field`: Boolean mask of already-classified voxels (e.g. nodes when finding filaments).
+    - `min_vol`: Minimum volume in (Mpc/h)³ for a detection to be kept.
 
     # Keyword Arguments
-    - `s_low`: Lower bound for threshold search as a fraction of the maximum signature. 
-   Should be small enough to include all potential structures. Default: `1e-5`
-    - `s_high`: Upper bound for threshold search as a fraction of the maximum signature.
-    Should be below 1 to avoid empty fields. Default: `9e-1`
+    - `s_low`: Lower bound for threshold search as a fraction of the maximum signature. Default: `1e-5`
+    - `s_high`: Upper bound for threshold search as a fraction of the maximum signature. Default: `9e-1`
+    - `stepsize`: Step size in log10(S) for the threshold sweep. Default: `0.1`
 
-    Generate clean filament/wall field based on significant filaments/walls above optimal signature threshold.
+    # Returns
+    `(clean_field, S_th, S_midpoints, ΔM²)` — boolean environment map, optimal threshold,
+    and the normalized ΔM² curve used to find it.
 """
 function fila_wall_field!(
     sim_box::SimBox, 

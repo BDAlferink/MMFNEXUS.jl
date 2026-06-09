@@ -143,7 +143,7 @@ function allocate_signature_arrays(
     N::Integer, 
     mode::Symbol
     )
-    # Helper functino to allocate only the signatures needed for NEXUS(+)
+    # Helper function to allocate only the signatures needed for NEXUS(+)
     if mode == :node
         return (
             S_n = Array{Float32}(undef, N, N, N),
@@ -212,7 +212,7 @@ function signatures_hessian!(
     # FFT the density field
     fft_field!(filt, ρ_filtered)
 
-    # In case of NEXUS (node detection), we use a normal Gaussian filter. This can be done simultaniously
+    # In case of NEXUS (node detection), we use a normal Gaussian filter. This can be done simultaneously
     # with the Hessian computation for efficiency. This is not possible with the logfilter.
     if mode == :node
         apply_gaussian_filter!(buf, filt.k2, R)
