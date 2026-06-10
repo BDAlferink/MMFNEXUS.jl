@@ -1,7 +1,7 @@
 name = "MMFNEXUS"
 uuid = "10f02407-cee8-4d2b-96f7-1b77de738a58"
 authors = ["Bram D. Alferink <bramalferink@gmail.com> and contributors"]
-version = "0.1.1"
+version = "0.1.0"
 
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
